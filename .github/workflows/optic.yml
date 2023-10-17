@@ -17,6 +17,6 @@ jobs:
  
       - name: Run Optic
         env:
-          OPTIC_TOKEN: oidN2QzOTg4NjQtMjkyMi00NTM1LWFhOWItZmJjMGNkZTQ4ZmMx.y7Erp3Jz8kfw7sYZCiScN._tCq3FIEW3xPluxHJXRVi
+          OPTIC_TOKEN: oidN2MwNzY0ODktYzRiOS00N2Y0LWEwZDQtN2RkYmE4ZTQxM2Qw.aGUgwdbXOO1Xn_Y7tcoQi.rXJCzE91YlzRS219IUfTh
           GITHUB_TOKEN: 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
         run: optic run
