@@ -26,9 +26,17 @@ paths:
       parameters:
         - in: query
           name: id
-          description: 貨品系統ID
+          description: 貨品系統ID.
           schema:
-            type: string
+            type: array
+            items:
+              type: number
+            explode: true
+            style: form
+        - in: query
+          $ref: '#/components/parameters/limitParam'
+        - in: query
+          $ref: '#/components/parameters/offsetParam'
       responses:
         "200":
           description: 200 response
@@ -37,7 +45,55 @@ paths:
               schema:
                 $ref: "#/components/schemas/GetItemsList200ResponseBody"
 components:
+  parameters:
+    offsetParam:
+      name: offset
+      in: query
+      description: 起始數據筆數. the offset of starting record
+      required: false
+      schema:
+        type: number
+        default: 0
+    limitParam:
+      name: limit
+      in: query
+      description: 顯示數據筆數. the number of records to show
+      required: false
+      schema:
+        type: number
+        default: 30
   schemas:
+    Image:
+      type: object
+      description: |
+        圖片. Image 
+      properties:
+        id:
+          type: number
+          description: |
+            圖片系統ID. Image ID
+        name:
+          type: string
+          description: |
+            圖片名稱. Image name
+        url:
+          type: string
+          description: |
+            圖片URL. Image URL
+        size:
+          type: number
+          description: |
+            圖片大小. Image size
+        created_at:
+          type: number 
+          description: |
+            圖片創建時間 timestamp. Image created timestamp
+      required:
+        - id
+        - name
+        - url
+        - size
+        - created_at
     GetItemsList200ResponseBody:
       type: array
       items:
@@ -45,6 +101,27 @@ components:
         properties:
           id:
             type: number
-            description: 貨品系統ID
+            description: | 
+              商品系統ID. Item Id
+          name:
+            type: string
+            description: |
+              商品名稱. Item name
+          category_id:
+            type: number
+            description: |
+              商品分類系統ID. Item Category ID
+          description:
+            type: string
+            description: |
+              商品描述. Item description
+          images:
+            type: array
+            description: |
+              商品圖片. Item images
+            items:
+              $ref: '#/components/schemas/Image'
         required:
           - id
+          - name
+          - category_id
