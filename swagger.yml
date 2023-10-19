@@ -2,14 +2,11 @@ info:
   title: Treepos API
   version: 1.0.0
   description: This is API documentation for Treepos
-openapi: 3.0.0
+openapi: 3.1.0
 host: pos.marstree.ltd
 basePath: /api
 schemas:
   - https
-servers: 
-  - description: Treepos API Auto 
-    url: https://pos.marstree.ltd/api
 paths:
   # Option Set
   /optionset/list:
@@ -29,14 +26,13 @@ paths:
           $ref: '#/components/parameters/limitParam'
         - in: query
           $ref: '#/components/parameters/offsetParam'
-      produces:
-        - application/json
       responses:
         "200":
-          description: OK
+          description: 200 response
           content:
-            schema:
-              $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
   
   # Item API
   /item/list:
@@ -56,14 +52,13 @@ paths:
           $ref: '#/components/parameters/limitParam'
         - in: query
           $ref: '#/components/parameters/offsetParam'
-      produces:
-        - application/json
       responses:
         "200":
-          description: OK
-          content: 
-            schema:
-              $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
 
   /item/{id}:
     get:
@@ -75,14 +70,13 @@ paths:
           required: true
           schema:
             type: number
-      produces:
-        - application/json
       responses:
         "200":
-          description: OK
-          content: 
-            schema:
-              $ref: "#/components/schemas/GetItem200ResponseBody"
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetItem200ResponseBody"
 components:
   parameters:
     offsetParam:
@@ -361,3 +355,4 @@ components:
         - has_more
     GetItem200ResponseBody:
       $ref: '#/components/schemas/Item'
+
