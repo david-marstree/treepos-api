@@ -8,6 +8,9 @@ basePath: /api
 schemas:
   - https
 servers: 
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/david-marstree/treepos-api/1.0.0
   - https://pos.marstree.ltd/api
 paths:
   # Option Set
@@ -357,7 +360,3 @@ components:
         - has_more
     GetItem200ResponseBody:
       $ref: '#/components/schemas/Item'
-servers:
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/david-marstree/treepos-api/1.0.0
