@@ -94,6 +94,27 @@ components:
         - url
         - size
         - created_at
+    Location:
+      type: object
+      description: |
+        地點. Location
+      properties:
+        id:
+          type: number
+          description: |
+            地點系統ID. Location ID
+        name:
+          type: string
+          description: |
+            地點名稱. Location name
+        created_at:
+          type: number 
+          description: |
+            地點創建時間 timestamp. Location created timestamp
+      required:
+        - id
+        - name
+        - created_at
     GetItemsList200ResponseBody:
       type: array
       items:
@@ -121,6 +142,12 @@ components:
               商品圖片. Item images
             items:
               $ref: '#/components/schemas/Image'
+          locations:
+            type: array
+            description: |
+              商品上架地點. Item on stock locations
+            items: 
+              $ref: '#/components/schemas/Location'
         required:
           - id
           - name
