@@ -45,5 +45,6 @@ components:
         properties:
           id:
             type: number
+            description: 貨品系統ID
         required:
           - id
