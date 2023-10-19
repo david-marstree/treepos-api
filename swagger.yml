@@ -7,6 +7,8 @@ host: pos.marstree.ltd
 basePath: /api
 schemas:
   - https
+servers: 
+  - https://pos.marstree.ltd/api
 paths:
   # Option Set
   /optionset/list:
