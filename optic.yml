@@ -4,10 +4,18 @@ capture:
     # Run with "optic capture optic.yml --update interactive" 
     # You can change the server and the 'requests' section to experiment
     server:
-      url: https://api.github.com
+      url: https://pos.marstree.ltd/api
     requests:
       send:
-        - path: /items/list
+        - path: /optionset/list
+          method: GET
+          query: 
+            id: 1
+        - path: /item/list
+          method: GET
+          query: 
+            id: 1
+        - path: /item/1
           method: GET
     # When you are ready, set up an actual integration that run your test suite
     # Read reference docs here: https://www.useoptic.com/docs/capturing-traffic#configuration-reference
@@ -32,7 +40,11 @@ capture:
       url: https://pos.marstree.ltd/api
     requests:
       send:
-        - path: /items/list
+        - path: /optionset/list
+          method: GET
+        - path: /item/list
+          method: GET
+        - path: /item/{id}
           method: GET
     # When you are ready, set up an actual integration that run your test suite
     # Read reference docs here: https://www.useoptic.com/docs/capturing-traffic#configuration-reference

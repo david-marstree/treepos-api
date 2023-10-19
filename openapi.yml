@@ -6,23 +6,36 @@ openapi: 3.1.0
 servers:
   - url: https://pos.marstree.ltd/api
 paths:
-  # /orgs/{org}/repos:
-  #   parameters:
-  #     - in: path
-  #       name: org
-  #       required: true
-  #       schema:
-  #         type: string
-  #   get:
-  #     responses:
-  #       "200":
-  #         description: 200 response
-  #         content:
-  #           application/json; charset=utf-8:
-  #             schema:
-  #               $ref: "#/components/schemas/GetOrgsOrgRepos200ResponseBody"
-  /items/list:
+  # Option Set
+  /optionset/list:
     get:
+      description: 選項集列表. list option sets
+      parameters:
+        - in: query
+          name: id
+          description: 選項集系統ID.
+          schema:
+            type: array
+            items:
+              type: number
+            explode: true
+            style: form
+        - in: query
+          $ref: '#/components/parameters/limitParam'
+        - in: query
+          $ref: '#/components/parameters/offsetParam'
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+  
+  # Item API
+  /item/list:
+    get:
+      description: 貨品列表. list items
       parameters:
         - in: query
           name: id
@@ -43,7 +56,25 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetItemsList200ResponseBody"
+                $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+
+  /item/{id}:
+    get:
+      description: 貨品詳細資訊. get item
+      parameters:
+        - in: path
+          name: id
+          description: 貨品系統ID.
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetItem200ResponseBody"
 components:
   parameters:
     offsetParam:
@@ -54,6 +85,7 @@ components:
       schema:
         type: number
         default: 0
+
     limitParam:
       name: limit
       in: query
@@ -89,11 +121,16 @@ components:
           description: |
             圖片創建時間 timestamp. Image created timestamp
       required:
-        - id
         - name
         - url
         - size
-        - created_at
+      example:
+        id: 1
+        name: logo
+        url: https://example.com/logo.png
+        size: 123
+        created_at: 1600000000
+
     Location:
       type: object
       description: |
@@ -112,43 +149,208 @@ components:
           description: |
             地點創建時間 timestamp. Location created timestamp
       required:
+        - name
+      example:
+        id: 1
+        name: home
+        created_at: 1600000000
+
+    Option:
+      type: object
+      description: |
+        選項. Option
+      properties:
+        name:
+          type: string
+          description: |
+            選項名稱. Option name
+        color:
+          type: string
+          pattern: '^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+          description: |
+            選項顏色. Option color in hex format
+      required:
+        - name
+        - color
+      example:
+        name: Red
+        color: #FF0000
+          
+    OptionSet:
+      type: object
+      description: |
+        選項集. Option set
+      properties:
+        id:
+          type: number
+          description: |
+            選項集系統ID. Option set ID
+        name:
+          type: string
+          description: |
+            選項集名稱. Option set name
+        type:
+          type: string
+          enum: 
+            - text
+            - textColor
+        options:
+          type: array 
+          description: |
+            可用選項. Options available
+          items:
+            $ref: '#/components/schemas/Option'
+      required:
         - id
         - name
-        - created_at
-    GetItemsList200ResponseBody:
-      type: array
-      items:
-        type: object
-        properties:
-          id:
-            type: number
-            description: | 
-              商品系統ID. Item Id
-          name:
-            type: string
-            description: |
-              商品名稱. Item name
-          category_id:
-            type: number
-            description: |
-              商品分類系統ID. Item Category ID
-          description:
-            type: string
-            description: |
-              商品描述. Item description
-          images:
-            type: array
-            description: |
-              商品圖片. Item images
-            items:
-              $ref: '#/components/schemas/Image'
-          locations:
-            type: array
-            description: |
-              商品上架地點. Item on stock locations
-            items: 
+        - type
+        - options
+    Unit:
+      type: object
+      description: |
+        單位. Unit
+      properties:
+        id:
+          type: number
+          description: |
+            單位系統ID. Unit ID
+        name:
+          type: string
+          description: |
+            單位名稱. Unit name
+        decimal:
+          type: string
+          enum:
+            - '1'
+            - '.0'
+            - '.00'
+            - '.000'
+            - '.0000'
+            - '.00000'
+          description: |
+            小數點位數. Decimal places
+        custom:
+          type: boolean
+          description: |
+            是否為自定義單位. Is it a custom unit
+      required:
+        - id
+        - name
+        - decimal
+        - custom
+    Item:
+      type: object
+      properties:
+        id:
+          type: number
+          description: | 
+            商品系統ID. Item Id
+        name:
+          type: string
+          description: |
+            商品名稱. Item name
+        category_id:
+          type: number
+          description: |
+            商品分類系統ID. Item Category ID
+        description:
+          type: string
+          description: |
+            商品描述. Item description
+        images:
+          type: array
+          description: |
+            商品圖片. Item images
+          items:
+            $ref: '#/components/schemas/Image'
+        locations:
+          type: array
+          description: |
+            商品上架地點. Item on stock locations
+          items: 
               $ref: '#/components/schemas/Location'
-        required:
-          - id
-          - name
-          - category_id
+        sku:
+          type: string
+          description: |
+            商品SKU. Item SKU
+        unit:
+          $ref: '#/components/schemas/Unit'
+        price:
+          type: number
+          description: |
+            商品價格. Item price
+        weight:
+          type: number
+          description: |
+            商品重量. Item weight
+        tracking:
+          type: boolean
+          description: |
+            是否開啟追蹤. Is tracking enabled
+        low_stock_alert:
+          type: boolean
+          description: |
+            是否開啟低庫存警示. Is low stock alert enabled
+        low_stock_amount:
+          type: number
+          description: |
+            低庫存警示數量. Low stock alert threshold
+        variations:
+          type: array
+          description: |
+            商品變異. Item variations
+          items:
+            $ref: '#/components/schemas/Variation'
+      required:
+        - id
+        - name
+        - category_id
+
+    #Variation
+    Variation:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            parent_id:
+              type: number
+              description: |
+                父商品系統ID. Parent Item ID
+          required:
+            - parent_id
+
+    GetOptionSetList200ResponseBody:
+      type: object
+      properties:
+        object:
+          type: string
+          const: optionset
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OptionSet'
+        has_more:
+          type: boolean
+      required:
+        - object
+        - data
+        - has_more
+    GetItemsList200ResponseBody:
+      type: object
+      properties:
+        object:
+          type: string
+          const: item
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        has_more:
+          type: boolean
+      required:
+        - object
+        - data
+        - has_more
+    GetItem200ResponseBody:
+      $ref: '#/components/schemas/Item'
+
