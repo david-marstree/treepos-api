@@ -9,9 +9,11 @@ schemas:
   - https
 servers: 
   # Added by API Auto Mocking Plugin
+  # Added by API Auto Mocking Plugin
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/david-marstree/treepos-api/1.0.0
-  - https://pos.marstree.ltd/api
+  - description: Treepos API Auto 
+    url: https://pos.marstree.ltd/api
 paths:
   # Option Set
   /optionset/list:
