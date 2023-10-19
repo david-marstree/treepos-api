@@ -34,8 +34,9 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+          content:
+            schema:
+              $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
   
   # Item API
   /item/list:
@@ -60,8 +61,9 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+          content: 
+            schema:
+              $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
 
   /item/{id}:
     get:
@@ -78,8 +80,9 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: "#/components/schemas/GetItem200ResponseBody"
+          content: 
+            schema:
+              $ref: "#/components/schemas/GetItem200ResponseBody"
 components:
   parameters:
     offsetParam:
