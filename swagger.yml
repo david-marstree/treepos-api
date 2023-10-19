@@ -3,8 +3,10 @@ info:
   version: 1.0.0
   description: This is API documentation for Treepos
 openapi: 3.1.0
-servers:
-  - url: https://pos.marstree.ltd/api
+host: pos.marstree.ltd
+basePath: /api
+schemas:
+  - https
 paths:
   # Option Set
   /optionset/list:
@@ -24,13 +26,13 @@ paths:
           $ref: '#/components/parameters/limitParam'
         - in: query
           $ref: '#/components/parameters/offsetParam'
+      produces:
+        - application/json
       responses:
         "200":
-          description: 200 response
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+          description: OK
+          schema:
+            $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
   
   # Item API
   /item/list:
@@ -50,13 +52,13 @@ paths:
           $ref: '#/components/parameters/limitParam'
         - in: query
           $ref: '#/components/parameters/offsetParam'
+      produces:
+        - application/json
       responses:
         "200":
-          description: 200 response
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+          description: OK
+          schema:
+            $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
 
   /item/{id}:
     get:
@@ -68,13 +70,13 @@ paths:
           required: true
           schema:
             type: number
+      produces:
+        - application/json
       responses:
         "200":
-          description: 200 response
-          content:
-            application/json; charset=utf-8:
-              schema:
-                $ref: "#/components/schemas/GetItem200ResponseBody"
+          description: OK
+          schema:
+            $ref: "#/components/schemas/GetItem200ResponseBody"
 components:
   parameters:
     offsetParam:
