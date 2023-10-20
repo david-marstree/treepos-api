@@ -7,6 +7,10 @@ capture:
       url: https://pos.marstree.ltd/api
     requests:
       send:
+        - path: /attribute/list
+          method: GET
+          query: 
+            id: 1
         - path: /optionset/list
           method: GET
           query: 
@@ -40,6 +44,8 @@ capture:
       url: https://pos.marstree.ltd/api
     requests:
       send:
+        - path: /attribute/list
+          method: GET
         - path: /optionset/list
           method: GET
         - path: /item/list

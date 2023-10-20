@@ -3,10 +3,9 @@ info:
   version: 1.0.0
   description: This is API documentation for Treepos
 openapi: 3.1.0
-host: pos.marstree.ltd
-basePath: /api
-schemas:
-  - https
+servers:
+  - url: pos.marstree.ltd/api
+    description: Local
 paths:
   # Option Set
   /optionset/list:
@@ -33,15 +32,27 @@ paths:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
-  
+        "403":
+          description: 403 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/GetError"
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+
   # Item API
   /item/list:
     get:
-      description: 貨品列表. list items
+      description: 商品列表. list items
       parameters:
         - in: query
           name: id
-          description: 貨品系統ID.
+          description: 商品系統ID.
           schema:
             type: array
             items:
@@ -58,15 +69,35 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
+                $ref: "#/components/schemas/GetItemList200ResponseBody"
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
 
   /item/{id}:
     get:
-      description: 貨品詳細資訊. get item
+      description: 商品詳細資訊. get item
       parameters:
         - in: path
           name: id
-          description: 貨品系統ID.
+          description: 商品系統ID.
           required: true
           schema:
             type: number
@@ -77,6 +108,44 @@ paths:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/GetItem200ResponseBody"
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/GetError"
+
+  # Attributes API
+  /attribute/list:
+    get:
+      description: 商品屬性. get item attributes
+      parameters:
+        - in: path
+          name: id
+          description: 商品系統ID.
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetAttributeList200ResponseBody"
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/GetError"
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+
 components:
   parameters:
     offsetParam:
@@ -119,7 +188,7 @@ components:
           description: |
             圖片大小. Image size
         created_at:
-          type: number 
+          type: number
           description: |
             圖片創建時間 timestamp. Image created timestamp
       required:
@@ -147,7 +216,7 @@ components:
           description: |
             地點名稱. Location name
         created_at:
-          type: number 
+          type: number
           description: |
             地點創建時間 timestamp. Location created timestamp
       required:
@@ -176,8 +245,9 @@ components:
         - color
       example:
         name: Red
-        color: #FF0000
-          
+        color:
+          #FF0000
+
     OptionSet:
       type: object
       description: |
@@ -193,11 +263,11 @@ components:
             選項集名稱. Option set name
         type:
           type: string
-          enum: 
+          enum:
             - text
             - textColor
         options:
-          type: array 
+          type: array
           description: |
             可用選項. Options available
           items:
@@ -245,7 +315,7 @@ components:
       properties:
         id:
           type: number
-          description: | 
+          description: |
             商品系統ID. Item Id
         name:
           type: string
@@ -269,8 +339,8 @@ components:
           type: array
           description: |
             商品上架地點. Item on stock locations
-          items: 
-              $ref: '#/components/schemas/Location'
+          items:
+            $ref: '#/components/schemas/Location'
         sku:
           type: string
           description: |
@@ -303,6 +373,12 @@ components:
             商品變異. Item variations
           items:
             $ref: '#/components/schemas/Variation'
+        attributes:
+          type: array
+          description: |
+            商品屬性. Item attributes
+          items:
+            $ref: '#/components/schemas/AttributeValue'
       required:
         - id
         - name
@@ -321,6 +397,132 @@ components:
           required:
             - parent_id
 
+    #Attribute
+    Attribute:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            商品屬性系統ID. Attribute ID
+        slug:
+          type: string
+          description: |
+            屬性名稱. Attribute slug
+        name:
+          type: string
+          description: |
+            屬性顯示名稱. Attribute display name
+        type:
+          type: string
+          description: |
+            屬性類型. Attribute type
+          enum:
+            - text
+            - toggle
+            - number
+            - selection
+        multiple:
+          type: boolean
+          description: |
+            是否為多選. Is it multiple
+        options:
+          type: array
+          description: |
+            屬性選項. Attribute options
+          items:
+            $ref: '#/components/schemas/Option'
+        decimal:
+          type: string
+          enum:
+            - '1'
+            - '.0'
+            - '.00'
+            - '.000'
+            - '.0000'
+            - '.00000'
+          description: |
+            小數點位數. Decimal places
+      required:
+        - id
+        - slug
+        - name
+        - type
+
+    #AttributeValue
+    AttributeValue:
+      type: object
+      properties:
+        name:
+          type: string
+          description: |
+            屬性名稱. Attribute slug
+        value:
+          type: string
+          description: |
+            屬性值. Attribute value
+      required:
+        - name
+        - value
+
+    #Modifier:
+    Modifier:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            配料系統ID. Modifier ID
+        name:
+          type: string
+          description: |
+            配料名稱. Modifier name
+        image:
+          description: |
+            配料圖片. Modifier image
+          $ref: '#/components/schemas/Image'
+        price:
+          type: number
+          description: |
+            配料價錢. Modifier price
+        status:
+          type: boolean
+          description: |
+            是否啟用. Is it enabled
+      required: 
+        - id
+        - name
+        - price
+        - status
+    # Modifier Set
+    ModifierSet:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            配料集系統ID. Modifier set ID
+        name:
+          type: string
+          description: |
+            配料集名稱. Modifier set name
+        multiple:
+          type: boolean
+          description: |
+            是否為多選. Is it multiple
+        modifiers:
+          type: array
+          description: |
+            配料集可選配料. Modifiers in modifier set
+          items:
+            $ref: '#/components/schemas/Modifier'
+        locations:
+          type: array
+          description: |
+            配料集可選地點. Locations in modifier set
+          items:
+            $ref: '#/components/schemas/Location'
+
     GetOptionSetList200ResponseBody:
       type: object
       properties:
@@ -337,7 +539,7 @@ components:
         - object
         - data
         - has_more
-    GetItemsList200ResponseBody:
+    GetItemList200ResponseBody:
       type: object
       properties:
         object:
@@ -353,6 +555,31 @@ components:
         - object
         - data
         - has_more
+    GetAttributeList200ResponseBody:
+      type: object
+      properties:
+        object:
+          type: string
+          const: item
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attribute'
+        has_more:
+          type: boolean
+      required:
+        - object
+        - data
+        - has_more
     GetItem200ResponseBody:
       $ref: '#/components/schemas/Item'
-
+    GetError:
+      type: object
+      properties:
+        status:
+          type: boolean
+        error:
+          type: string
+      required:
+        - status
+        - error
