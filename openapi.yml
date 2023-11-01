@@ -117,12 +117,19 @@ paths:
     get:
       description: 商品屬性. get item attributes
       parameters:
-        - in: path
+        - in: query
           name: id
-          description: 商品系統ID.
-          required: true
+          description: 商品屬性系統ID.
           schema:
-            type: number
+            type: array
+            items:
+              type: number
+            explode: true
+            style: form
+        - in: query
+          $ref: '#/components/parameters/limitParam'
+        - in: query
+          $ref: '#/components/parameters/offsetParam'
       responses:
         "200":
           description: 200 response
@@ -130,6 +137,168 @@ paths:
             application/json; charset=utf-8:
               schema:
                 $ref: "#/components/schemas/GetAttributeList200ResponseBody"
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/GetError"
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+
+  # Category API
+  /category/list:
+    get:
+      description: 商品分類. get item category 
+      parameters:
+        - in: query
+          name: id
+          description: 商品分類系統ID.
+          schema:
+            type: array
+            items:
+              type: number
+            explode: true
+            style: form
+        - in: query
+          name: name
+          description: 商品分類名稱.
+          schema:
+            type: string
+        - in: query
+          $ref: '#/components/parameters/limitParam'
+        - in: query
+          $ref: '#/components/parameters/offsetParam'
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetCategoryList200ResponseBody"
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/GetError"
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+
+  # ModifierSet API
+  /modifierset/list:
+    get:
+      description: 商品配料集. get item modifier sets
+      parameters:
+        - in: query
+          name: id
+          description: 商品配料集系統ID.
+          schema:
+            type: array
+            items:
+              type: number
+            explode: true
+            style: form
+        - in: query
+          name: name
+          description: 商品配料集名稱.
+          schema:
+            type: string
+        - in: query
+          $ref: '#/components/parameters/limitParam'
+        - in: query
+          $ref: '#/components/parameters/offsetParam'
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetModifierSetList200ResponseBody"
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/GetError"
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+
+  # Image API
+  /image/list:
+    get:
+      description: 列出圖片. get Images
+      parameters:
+        - in: query
+          name: id
+          description: 圖片系統ID.
+          schema:
+            type: array
+            items:
+              type: number
+            explode: true
+            style: form
+        - in: query
+          $ref: '#/components/parameters/limitParam'
+        - in: query
+          $ref: '#/components/parameters/offsetParam'
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetImageList200ResponseBody"
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/GetError"
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+
+  # Location API
+  /location/list:
+    get:
+      description: 列出地點. get Locations
+      parameters:
+        - in: query
+          name: id
+          description: 地點系統ID.
+          schema:
+            type: array
+            items:
+              type: number
+            explode: true
+            style: form
+        - in: query
+          $ref: '#/components/parameters/limitParam'
+        - in: query
+          $ref: '#/components/parameters/offsetParam'
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/GetLocationList200ResponseBody"
         "403":
           description: 403 response
           content:
@@ -162,6 +331,7 @@ components:
       schema:
         type: number
         default: 30
+
   schemas:
     Image:
       type: object
@@ -242,8 +412,7 @@ components:
         - color
       example:
         name: Red
-        color:
-          #FF0000
+        color: "#FF0000"
 
     OptionSet:
       type: object
@@ -274,6 +443,12 @@ components:
         - name
         - type
         - options
+      example:
+        id: 1
+        name: Color
+        type: text
+        options: [{"color": "#FF0000", "name": "Red"}, {"color": "#00FF00", "name": "Green"}, {"color": "#0000FF", "name": "Blue"}]
+
     Unit:
       type: object
       description: |
@@ -307,6 +482,13 @@ components:
         - name
         - decimal
         - custom
+      example:
+        id: 1
+        name: kg
+        decimal: '.0'
+        custom: false
+
+
     Item:
       type: object
       properties:
@@ -322,6 +504,8 @@ components:
           type: number
           description: |
             商品分類系統ID. Item Category ID
+        category:
+          $ref: '#/components/schemas/Category'
         description:
           type: string
           description: |
@@ -445,6 +629,14 @@ components:
         - slug
         - name
         - type
+      example:
+        id: 1
+        slug: color
+        name: Color
+        type: text
+        multiple: false
+        options: [{"color": "#FF0000", "name": "Red"}, {"color": "#00FF00", "name": "Green"}, {"color": "#0000FF", "name": "Blue"}]
+        decimal: '.0'
 
     #AttributeValue
     AttributeValue:
@@ -461,6 +653,9 @@ components:
       required:
         - name
         - value
+      example:
+        name: Color
+        value: Red
 
     #Modifier:
     Modifier:
@@ -486,11 +681,18 @@ components:
           type: boolean
           description: |
             是否啟用. Is it enabled
-      required: 
+      required:
         - id
         - name
         - price
         - status
+      example:
+        id: 1
+        name: Spicy
+        image: https://example.com/spicy.png
+        price: 10
+        status: true
+
     # Modifier Set
     ModifierSet:
       type: object
@@ -519,6 +721,31 @@ components:
             配料集可選地點. Locations in modifier set
           items:
             $ref: '#/components/schemas/Location'
+      example:
+        id: 1
+        name: Spicy
+        multiple: false
+        modifiers: [{"id": 1, "name": "Spicy", "image": "https://example.com/spicy.png", "price": 10, "status": true}]
+        locations: [{"id": 1, "name": "Macau"}]
+
+    # Category
+    Category:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            分類系統ID. Category ID
+        name:
+          type: string
+          description: |
+            分類名稱. Category name
+      required:
+        - id
+        - name
+      example:
+        id: 1
+        name: Food
 
     GetOptionSetList200ResponseBody:
       type: object
@@ -536,6 +763,7 @@ components:
         - object
         - data
         - has_more
+
     GetItemList200ResponseBody:
       type: object
       properties:
@@ -552,12 +780,13 @@ components:
         - object
         - data
         - has_more
+
     GetAttributeList200ResponseBody:
       type: object
       properties:
         object:
           type: string
-          const: item
+          const: attribute
         data:
           type: array
           items:
@@ -568,8 +797,78 @@ components:
         - object
         - data
         - has_more
+
+    GetModifierSetList200ResponseBody:
+      type: object
+      properties:
+        object:
+          type: string
+          const: modifierset
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModifierSet'
+        has_more:
+          type: boolean
+      required:
+        - object
+        - data
+        - has_more
+
+    GetCategoryList200ResponseBody:
+      type: object
+      properties:
+        object:
+          type: string
+          const: category
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+        has_more:
+          type: boolean
+      required:
+        - object
+        - data
+        - has_more
+
+    GetImageList200ResponseBody:
+      type: object
+      properties:
+        object:
+          type: string
+          const: category
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Image'
+        has_more:
+          type: boolean
+      required:
+        - object
+        - data
+        - has_more
+
+    GetLocationList200ResponseBody:
+      type: object
+      properties:
+        object:
+          type: string
+          const: category
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        has_more:
+          type: boolean
+      required:
+        - object
+        - data
+        - has_more
+
     GetItem200ResponseBody:
       $ref: '#/components/schemas/Item'
+
     GetError:
       type: object
       properties:
@@ -580,3 +879,5 @@ components:
       required:
         - status
         - error
+
+

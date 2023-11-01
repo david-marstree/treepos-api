@@ -15,6 +15,22 @@ capture:
           method: GET
           query: 
             id: 1
+        - path: /modifierset/list
+          method: GET
+          query: 
+            id: 1
+        - path: /category/list
+          method: GET
+          query: 
+            id: 1
+        - path: /image/list
+          method: GET
+          query: 
+            id: 1
+        - path: /location/list
+          method: GET
+          query: 
+            id: 1
         - path: /item/list
           method: GET
           query: 
@@ -47,6 +63,14 @@ capture:
         - path: /attribute/list
           method: GET
         - path: /optionset/list
+          method: GET
+        - path: /modifierset/list
+          method: GET
+        - path: /category/list
+          method: GET
+        - path: /image/list
+          method: GET
+        - path: /location/list
           method: GET
         - path: /item/list
           method: GET
