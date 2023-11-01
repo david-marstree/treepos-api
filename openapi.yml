@@ -1,11 +1,8 @@
 info:
-  title: Treepos API
+  title: BWpos API
   version: 1.0.0
-  description: This is API documentation for Treepos
+  description: This is API documentation for BWpos
 openapi: 3.1.0
-servers:
-  - url: pos.marstree.ltd/api
-    description: Local
 paths:
   # Option Set
   /optionset/list:
