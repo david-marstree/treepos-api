@@ -1,18 +1,21 @@
 info:
   title: BWpos API
   version: 1.0.0
-  description: This is API documentation for BWpos
+  description: |
+    This is API documentation for BWpos
 openapi: 3.0.0
-schemas:
-  - https
-host: "api.example.com"
+servers:
+  - url: https://api.example.com
+    description: Production server
+  - url: https://testapi.example.com
+    description: Test server
 paths:
   # Merchant
   /merchant/list:
     get:
       tags:
         - Merchant 商家
-        - BW管理後台
+        - '*BW管理後台'
       summary: 商家列表
       description: 商家列表. list merchants
       parameters:
@@ -65,6 +68,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -76,8 +80,8 @@ paths:
     get:
       tags:
         - Merchant 商家
-        - BW管理後台
-        - 商圈雲Saas
+        - '*BW管理後台'
+        - '*商圈雲Saas'
       summary: 商家詳細資訊
       description: 商家詳細資訊. get merchant data
       parameters:
@@ -108,6 +112,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -118,8 +123,8 @@ paths:
     post:
       tags:
         - Merchant 商家
-        - BW管理後台
-        - 商圈雲Saas
+        - '*BW管理後台'
+        - '*商圈雲Saas'
       summary: 商家註冊
       description: 商家註冊. merchant registration
       requestBody:
@@ -195,17 +200,20 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
                   - status
                   - error
+
+  # Validation Request
   /validation/request:
     post:
       tags:
-        - Merchant 商家
-        - BW管理後台
-        - 商圈雲Saas
+        - Validation 手機驗證碼
+        - '*BW管理後台'
+        - '*商圈雲Saas'
       summary: 發送手機驗證碼
       description: 發送手機驗證碼. send Mobile Validation Code.
       requestBody:
@@ -223,31 +231,39 @@ paths:
                     - merchant
                     - customer
                 personId:
-                  description: 發送SMS對象Id.
+                  description: 發送SMS對象Id. 可以是商家ID或用戶ID
                   type: number
               required:
-                - email
-                - phone
-                - password
-                - firstName
-                - lastName
-                - locale
-                - toc
+                - personType
+                - personId
               example:
-                email: user@example.com
-                phone: 123456789
-                password: password
-                firstName: John
-                lastName: Doe
-                locale: en
-                toc: true
+                personType: merchant
+                personId: 1
       responses:
         "200":
           description: 200 response
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/Merchant'
+                type: object
+                properties:
+                  id: 
+                    type: number
+                    description: 驗證碼ID
+                  status: 
+                    type: string
+                    enum:
+                      - failure
+                      - sent
+                      - pending
+                      - success
+                    description: 驗證碼發送狀態
+                required:
+                  - id
+                  - status
+                example:
+                  id: 1234
+                  status: sent
         "404":
           description: 404 response
           content:
@@ -263,14 +279,98 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
                   - status
                   - error
+
+  /validation/confirm:
+    post:
+      tags:
+        - Validation 手機驗證碼
+        - '*商圈雲Saas'
+      summary: 手機驗證碼驗證
+      description: 手機驗證碼驗證. Mobile Validation Code Confirm
+      requestBody:
+        description: 商家資料及驗證碼
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                personType:
+                  description: 發送SMS對象類型.
+                  type: string
+                  enum:
+                    - merchant
+                    - customer
+                personId:
+                  description: 發送SMS對象Id.
+                  type: number
+                code:
+                  description: 驗證碼.
+                  type: string
+              required:
+                - personType
+                - personId
+                - code
+              example:
+                personType: merchant
+                personId: 1
+                code: 1234
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  id: 
+                    type: number
+                    description: 驗證碼ID
+                  status: 
+                    type: string
+                    description: 驗證狀態
+                required:
+                  - id
+                  - status
+                example:
+                  id: 1234
+                  status: success
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    default: false
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
+
   /optionset/list:
     get:
+      tags:
+        - OptionSet 選項集
+        - '*商圈雲Saas'
+        - '*商圈雲POS'
       description: 選項集列表. list option sets
+      summary: 選項集列表
       parameters:
         - in: query
           name: id
@@ -321,6 +421,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -330,6 +431,11 @@ paths:
   # Item API
   /items/list:
     get:
+      tags:
+        - Item 商品
+        - '*商圈雲Saas'
+        - '*商圈雲POS'
+      summary: 商品列表
       description: 商品列表. list items
       parameters:
         - in: query
@@ -381,6 +487,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -389,6 +496,11 @@ paths:
 
   /items/data/{id}:
     get:
+      tags:
+        - Item 商品
+        - '*商圈雲Saas'
+        - '*商圈雲POS'
+      summary: 商品詳細資訊
       description: 商品詳細資訊. get item
       parameters:
         - in: path
@@ -419,6 +531,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -428,7 +541,12 @@ paths:
   # Attributes API
   /attribute/list:
     get:
+      tags:
+        - Attribute 商品屬性 
+        - '*商圈雲Saas'
+        - '*商圈雲POS'
       description: 商品屬性. get item attributes
+      summary: 商品屬性
       parameters:
         - in: query
           name: id
@@ -479,6 +597,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -488,6 +607,11 @@ paths:
   # Category API
   /category/list:
     get:
+      tags:
+        - Category 商品分類
+        - '*商圈雲Saas'
+        - '*商圈雲POS'
+      summary: 商品分類
       description: 商品分類. get item category 
       parameters:
         - in: query
@@ -544,6 +668,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -553,6 +678,11 @@ paths:
   # ModifierSet API
   /modifierset/list:
     get:
+      tags:
+        - Modifier 商品配料集
+        - '*商圈雲Saas'
+        - '*商圈雲POS'
+      summary: 商品配料集
       description: 商品配料集. get item modifier sets
       parameters:
         - in: query
@@ -609,6 +739,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -618,6 +749,11 @@ paths:
   # Image API
   /image/list:
     get:
+      tags:
+        - Image 圖片庫
+        - '*商圈雲Saas'
+        - '*商圈雲POS'
+      summary: 列出圖片
       description: 列出圖片. get Images
       parameters:
         - in: query
@@ -669,20 +805,21 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
                   - status
                   - error
 
-  # Location API
-  /location/list:
+  # Store API
+  /store/list:
     get:
-      description: 列出地點. get Locations
+      description: 列出門市. get Stores
       parameters:
         - in: query
           name: id
-          description: 地點系統ID.
+          description: 門市系統ID.
           schema:
             type: array
             items:
@@ -707,7 +844,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Location'
+                      $ref: '#/components/schemas/Store'
                   has_more:
                     type: boolean
                 required:
@@ -729,6 +866,7 @@ paths:
                 properties:
                   status:
                     type: boolean
+                    default: false
                   error:
                     type: string
                 required:
@@ -792,23 +930,23 @@ components:
         size: 123
         created_at: 1600000000
 
-    Location:
+    Store:
       type: object
       description: |
-        地點. Location
+        門市. Store
       properties:
         id:
           type: number
           description: |
-            地點系統ID. Location ID
+            門市系統ID. Store ID
         name:
           type: string
           description: |
-            地點名稱. Location name
+            門市名稱. Location name
         created_at:
           type: number
           description: |
-            地點創建時間 timestamp. Location created timestamp
+            門市創建時間 timestamp. Location created timestamp
       required:
         - name
       example:
@@ -1221,6 +1359,61 @@ components:
         locale: en
         toc: true
 
+    # Validation
+    Validation:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            驗證碼ID. Validation ID
+        code:
+          type: string
+          description: |
+            4位數字驗證碼. Validation Code
+        personType:
+          type: string
+          description: |
+            發送對象類型. Person type
+          enum:
+            - customer
+            - merchant
+        personId:
+          type: number
+          description: |
+            發送對象ID. Person ID
+        status:
+          type: string
+          enum: 
+            - failure
+            - sent
+            - pending
+            - success
+          description: |
+            驗證碼狀態. Validation status
+        expiredAt:
+          type: number
+          description: |
+            驗證碼過期時間. Validation expired timestamp(5分鐘後到期)
+        createdAt:
+          type: number
+          description: |
+            驗證碼創建時間. Validation created timestamp
+      required:
+        - id
+        - code
+        - personType
+        - personId
+        - status
+        - expiredAt
+      example:
+        id: 1
+        code: 1234
+        personType: merchant
+        personId: 1
+        status: sent
+        expiredAt: 1664605900
+        createdAt: 1664605600
 
 
 
