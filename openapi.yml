@@ -2,9 +2,272 @@ info:
   title: BWpos API
   version: 1.0.0
   description: This is API documentation for BWpos
-openapi: 3.1.0
+openapi: 3.0.0
+schemas:
+  - https
+host: "api.example.com"
 paths:
+  # Merchant
+  /merchant/list:
+    get:
+      tags:
+        - Merchant 商家
+        - BW管理後台
+      summary: 商家列表
+      description: 商家列表. list merchants
+      parameters:
+        - in: query
+          name: id
+          description: 商家ID.
+          schema:
+            type: array
+            items:
+              type: number
+            explode: true
+            style: form
+        - in: query
+          $ref: '#/components/parameters/limitParam'
+        - in: query
+          $ref: '#/components/parameters/offsetParam'
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  object:
+                    type: string
+                    const: merchant
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Merchant'
+                  has_more:
+                    type: boolean
+                required:
+                  - object
+                  - data
+                  - has_more
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
+
   # Option Set
+  /merchant/data/{id}:
+    get:
+      tags:
+        - Merchant 商家
+        - BW管理後台
+        - 商圈雲Saas
+      summary: 商家詳細資訊
+      description: 商家詳細資訊. get merchant data
+      parameters:
+        - in: path
+          name: id
+          description: 商家ID.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
+
+  /merchant/register:
+    post:
+      tags:
+        - Merchant 商家
+        - BW管理後台
+        - 商圈雲Saas
+      summary: 商家註冊
+      description: 商家註冊. merchant registration
+      requestBody:
+        description: 商家資料
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  description: 商家電郵地址.
+                  type: string
+                  format: email
+                phone:
+                  description: 商家電話.
+                  type: string
+                password:
+                  description: 商家密碼.
+                  type: string
+                  format: password
+                firstName:
+                  description: 商家名字.
+                  type: string
+                lastName:
+                  description: 商家姓氏.
+                  type: string
+                locale:
+                  description: 商家使用語言.
+                  type: string
+                  enum:
+                    - en
+                    - zh-TW
+                    - zh-CN
+                toc:
+                  description: 商家同意條款.
+                  type: bool
+              required:
+                - email
+                - phone
+                - password
+                - firstName
+                - lastName
+                - locale
+                - toc
+              example:
+                email: user@example.com
+                phone: 123456789
+                password: password
+                firstName: John
+                lastName: Doe
+                locale: en
+                toc: true
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
+  /validation/request:
+    post:
+      tags:
+        - Merchant 商家
+        - BW管理後台
+        - 商圈雲Saas
+      summary: 發送手機驗證碼
+      description: 發送手機驗證碼. send Mobile Validation Code.
+      requestBody:
+        description: 商家資料
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                personType:
+                  description: 發送SMS對象類型.
+                  type: string
+                  enum:
+                    - merchant
+                    - customer
+                personId:
+                  description: 發送SMS對象Id.
+                  type: number
+              required:
+                - email
+                - phone
+                - password
+                - firstName
+                - lastName
+                - locale
+                - toc
+              example:
+                email: user@example.com
+                phone: 123456789
+                password: password
+                firstName: John
+                lastName: Doe
+                locale: en
+                toc: true
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
   /optionset/list:
     get:
       description: 選項集列表. list option sets
@@ -28,22 +291,44 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetOptionSetList200ResponseBody"
-        "403":
-          description: 403 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                $ref: "#/components/schemas/GetError"
+                type: object
+                properties:
+                  object:
+                    type: string
+                    const: optionset
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OptionSet'
+                  has_more:
+                    type: boolean
+                required:
+                  - object
+                  - data
+                  - has_more
         "404":
           description: 404 response
           content:
             text/html; charset=UTF-8:
               schema:
                 type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
 
   # Item API
-  /item/list:
+  /items/list:
     get:
       description: 商品列表. list items
       parameters:
@@ -66,7 +351,21 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetItemList200ResponseBody"
+                type: object
+                properties:
+                  object:
+                    type: string
+                    const: item
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                  has_more:
+                    type: boolean
+                required:
+                  - object
+                  - data
+                  - has_more
         "404":
           description: 404 response
           content:
@@ -88,7 +387,7 @@ paths:
                   - status
                   - error
 
-  /item/{id}:
+  /items/data/{id}:
     get:
       description: 商品詳細資訊. get item
       parameters:
@@ -104,13 +403,27 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetItem200ResponseBody"
+                $ref: '#/components/schemas/Item'
+        "404":
+          description: 404 response
+          content:
+            text/html; charset=UTF-8:
+              schema:
+                type: string
         "403":
           description: 403 response
           content:
             application/json; charset=UTF-8:
               schema:
-                $ref: "#/components/schemas/GetError"
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
 
   # Attributes API
   /attribute/list:
@@ -136,19 +449,41 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetAttributeList200ResponseBody"
-        "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                $ref: "#/components/schemas/GetError"
+                type: object
+                properties:
+                  object:
+                    type: string
+                    const: attribute
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Attribute'
+                  has_more:
+                    type: boolean
+                required:
+                  - object
+                  - data
+                  - has_more
         "404":
           description: 404 response
           content:
             text/html; charset=UTF-8:
               schema:
                 type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
 
   # Category API
   /category/list:
@@ -179,19 +514,41 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetCategoryList200ResponseBody"
-        "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                $ref: "#/components/schemas/GetError"
+                type: object
+                properties:
+                  object:
+                    type: string
+                    const: category
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+                  has_more:
+                    type: boolean
+                required:
+                  - object
+                  - data
+                  - has_more
         "404":
           description: 404 response
           content:
             text/html; charset=UTF-8:
               schema:
                 type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
 
   # ModifierSet API
   /modifierset/list:
@@ -222,19 +579,41 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetModifierSetList200ResponseBody"
-        "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                $ref: "#/components/schemas/GetError"
+                type: object
+                properties:
+                  object:
+                    type: string
+                    const: modifierset
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ModifierSet'
+                  has_more:
+                    type: boolean
+                required:
+                  - object
+                  - data
+                  - has_more
         "404":
           description: 404 response
           content:
             text/html; charset=UTF-8:
               schema:
                 type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
 
   # Image API
   /image/list:
@@ -260,19 +639,41 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetImageList200ResponseBody"
-        "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                $ref: "#/components/schemas/GetError"
+                type: object
+                properties:
+                  object:
+                    type: string
+                    const: category
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Image'
+                  has_more:
+                    type: boolean
+                required:
+                  - object
+                  - data
+                  - has_more
         "404":
           description: 404 response
           content:
             text/html; charset=UTF-8:
               schema:
                 type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
 
   # Location API
   /location/list:
@@ -298,19 +699,41 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/GetLocationList200ResponseBody"
-        "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                $ref: "#/components/schemas/GetError"
+                type: object
+                properties:
+                  object:
+                    type: string
+                    const: category
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
+                  has_more:
+                    type: boolean
+                required:
+                  - object
+                  - data
+                  - has_more
         "404":
           description: 404 response
           content:
             text/html; charset=UTF-8:
               schema:
                 type: string
+        "403":
+          description: 403 response
+          content:
+            application/json; charset=UTF-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                  error:
+                    type: string
+                required:
+                  - status
+                  - error
 
 components:
   parameters:
@@ -747,137 +1170,57 @@ components:
         id: 1
         name: Food
 
-    GetOptionSetList200ResponseBody:
+    Merchant:
       type: object
       properties:
-        object:
+        id: 
+          type: number
+          description: |
+            商家系統ID. Merchant ID
+        name: 
           type: string
-          const: optionset
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/OptionSet'
-        has_more:
-          type: boolean
-      required:
-        - object
-        - data
-        - has_more
-
-    GetItemList200ResponseBody:
-      type: object
-      properties:
-        object:
+          description: |
+            商家名稱. Merchant name
+        email:
+          description: 商家電郵地址.
           type: string
-          const: item
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Item'
-        has_more:
-          type: boolean
-      required:
-        - object
-        - data
-        - has_more
-
-    GetAttributeList200ResponseBody:
-      type: object
-      properties:
-        object:
+          format: email
+        phone:
+          description: 商家電話.
           type: string
-          const: attribute
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Attribute'
-        has_more:
-          type: boolean
-      required:
-        - object
-        - data
-        - has_more
-
-    GetModifierSetList200ResponseBody:
-      type: object
-      properties:
-        object:
+        password:
+          description: 商家密碼.
           type: string
-          const: modifierset
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/ModifierSet'
-        has_more:
-          type: boolean
-      required:
-        - object
-        - data
-        - has_more
-
-    GetCategoryList200ResponseBody:
-      type: object
-      properties:
-        object:
+          format: password
+        firstName:
+          description: 商家名字.
           type: string
-          const: category
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Category'
-        has_more:
-          type: boolean
-      required:
-        - object
-        - data
-        - has_more
-
-    GetImageList200ResponseBody:
-      type: object
-      properties:
-        object:
+        lastName:
+          description: 商家姓氏.
           type: string
-          const: category
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Image'
-        has_more:
-          type: boolean
-      required:
-        - object
-        - data
-        - has_more
-
-    GetLocationList200ResponseBody:
-      type: object
-      properties:
-        object:
+        locale:
+          description: 商家使用語言.
           type: string
-          const: category
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Location'
-        has_more:
-          type: boolean
+          enum:
+            - en
+            - zh-TW
+            - zh-CN
+        toc:
+          description: 商家同意條款.
+          type: bool
       required:
-        - object
-        - data
-        - has_more
+        - id
+        - name
+      example:
+        id: 1
+        name: ABC Company
+        email: user@example.com
+        phone: 1234567890
+        firstName: John
+        lastName: Doe
+        locale: en
+        toc: true
 
-    GetItem200ResponseBody:
-      $ref: '#/components/schemas/Item'
 
-    GetError:
-      type: object
-      properties:
-        status:
-          type: boolean
-        error:
-          type: string
-      required:
-        - status
-        - error
 
 
