@@ -1,8 +1,8 @@
 info:
-  title: BWpos API
+  title: MGM 媽閣塘項目API
   version: 1.0.0
   description: |
-    This is API documentation for BWpos
+    This is API documentation for MGM 媽閣塘項目
 openapi: 3.0.0
 servers:
   - url: https://api.example.com
@@ -14,9 +14,9 @@ paths:
   /merchant/list:
     get:
       tags:
+        - '03 BW管理後台'
         - Merchant 商家
-        - '*BW管理後台'
-      summary: 商家列表
+      summary: 商家列表. list merchants
       description: 商家列表. list merchants
       parameters:
         - in: query
@@ -47,42 +47,25 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Merchant'
-                  has_more:
+                  hasMore:
                     type: boolean
                 required:
                   - object
                   - data
-                  - has_more
+                  - hasMore
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
   # Option Set
   /merchant/data/{id}:
     get:
       tags:
+        - '01 商圈雲Saas'
+        - '03 BW管理後台'
         - Merchant 商家
-        - '*BW管理後台'
-        - '*商圈雲Saas'
-      summary: 商家詳細資訊
+      summary: 商家詳細資訊. get merchant data
       description: 商家詳細資訊. get merchant data
       parameters:
         - in: path
@@ -90,6 +73,7 @@ paths:
           description: 商家ID.
           schema:
             type: number
+          required: true 
       responses:
         "200":
           description: 200 response
@@ -98,34 +82,90 @@ paths:
               schema:
                 $ref: '#/components/schemas/Merchant'
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
+    put:
+      tags:
+        - '01 商圈雲Saas'
+        - '03 BW管理後台'
+        - Merchant 商家
+      summary: 商家更新. update merchant
+      description: 商家更新. update merchant
+      parameters:
+        - in: path
+          name: id
+          description: 商家ID.
+          schema:
+            type: number
+          required: true 
+          example: 1
+      requestBody:
+        description: 商家資料
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  description: 商家電郵地址.
+                  type: string
+                  format: email
+                phone:
+                  description: 商家電話.
+                  type: string
+                password:
+                  description: 商家密碼.
+                  type: string
+                firstName:
+                  description: 商家名字.
+                  type: string
+                lastName:
+                  description: 商家姓氏.
+                  type: string
+                locale:
+                  description: 商家使用語言.
+                  type: string
+              example:
+                email: user@example.com
+                phone: 1234567890
+                password: password
+                firstName: John
+                lastName: Doe
 
+  /merchant/findByPhone:
+    get:
+      tags:
+        - '01 商圈雲Saas'
+        - Merchant 商家
+      summary: 用手機號碼獲取商家詳細資訊. get merchant data by phone
+      description: 用手機號碼獲取商家詳細資訊. get merchant data by phone
+      parameters:
+        - in: query 
+          name: phone
+          description: 商家手機號碼.
+          schema:
+            type: number
+          required: true 
+          example: 1234567890
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        "403":
+          $ref: '#/components/responses/403Forbidden'
   /merchant/register:
     post:
       tags:
+        - '01 商圈雲Saas'
         - Merchant 商家
-        - '*BW管理後台'
-        - '*商圈雲Saas'
-      summary: 商家註冊
+      summary: 商家註冊. merchant registration
       description: 商家註冊. merchant registration
       requestBody:
         description: 商家資料
@@ -186,35 +226,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/Merchant'
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
   # Validation Request
+  /merchant/resetPassword:
+    post:
+      tags:
+        - '01 商圈雲Saas'
+        - Merchant 商家
+      summary: 商家重置密碼. merchant reset password
+      description: 商家重置密碼. merchant reset password
+      requestBody:
+        description: 商家資料
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: 
+                  description: 商家ID.
+                  type: number
+                password:
+                  description: 商家密碼.
+                  type: string
+                  format: password
+                code:
+                  description: 手機接收之4位數字驗證碼.
+                  type: string
+              required:
+                - id
+                - password
+                - code
+              example:
+                id: 1
+                password: password
+                code: 1234
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Merchant'
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        "403":
+          $ref: '#/components/responses/403Forbidden'
+
+  # Validation Code
   /validation/request:
     post:
       tags:
+        - '01 商圈雲Saas'
+        - '03 BW管理後台'
         - Validation 手機驗證碼
-        - '*BW管理後台'
-        - '*商圈雲Saas'
-      summary: 發送手機驗證碼
+      summary: 發送手機驗證碼.send Mobile Validation Code.
       description: 發送手機驗證碼. send Mobile Validation Code.
       requestBody:
         description: 商家資料
@@ -224,21 +293,21 @@ paths:
             schema:
               type: object
               properties:
-                personType:
+                targetType:
                   description: 發送SMS對象類型.
                   type: string
                   enum:
                     - merchant
                     - customer
-                personId:
+                targetId:
                   description: 發送SMS對象Id. 可以是商家ID或用戶ID
                   type: number
               required:
-                - personType
-                - personId
+                - targetType 
+                - targetId
               example:
-                personType: merchant
-                personId: 1
+                targetType: merchant
+                targetId: 1
       responses:
         "200":
           description: 200 response
@@ -265,33 +334,16 @@ paths:
                   id: 1234
                   status: sent
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
   /validation/confirm:
     post:
       tags:
+        - '01 商圈雲Saas'
         - Validation 手機驗證碼
-        - '*商圈雲Saas'
-      summary: 手機驗證碼驗證
+      summary: 手機驗證碼驗證. Mobile Validation Code Confirm
       description: 手機驗證碼驗證. Mobile Validation Code Confirm
       requestBody:
         description: 商家資料及驗證碼
@@ -301,25 +353,25 @@ paths:
             schema:
               type: object
               properties:
-                personType:
+                targetType:
                   description: 發送SMS對象類型.
                   type: string
                   enum:
                     - merchant
                     - customer
-                personId:
+                targetId:
                   description: 發送SMS對象Id.
                   type: number
                 code:
                   description: 驗證碼.
                   type: string
               required:
-                - personType
-                - personId
+                - targetType
+                - targetId
                 - code
               example:
-                personType: merchant
-                personId: 1
+                targetType: merchant
+                targetId: 1
                 code: 1234
       responses:
         "200":
@@ -342,35 +394,18 @@ paths:
                   id: 1234
                   status: success
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
   /optionset/list:
     get:
       tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
         - OptionSet 選項集
-        - '*商圈雲Saas'
-        - '*商圈雲POS'
       description: 選項集列表. list option sets
-      summary: 選項集列表
+      summary: 選項集列表. list option sets
       parameters:
         - in: query
           name: id
@@ -400,42 +435,78 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/OptionSet'
-                  has_more:
+                  hasMore:
                     type: boolean
                 required:
                   - object
                   - data
-                  - has_more
+                  - hasMore
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
+          $ref: '#/components/responses/403Forbidden'
+  /optionset/data/{id}:
+    get: 
+      tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
+        - OptionSet 選項集
+      description: 獲取選項集. get option sets
+      summary: 獲取集列表. get option sets
+      parameters:
+        - in: path
+          name: id
+          description: 選項集系統ID.
+          schema:
+            type: number
+          required: true
+      responses:
+        "200":
+          description: 200 response
           content:
-            application/json; charset=UTF-8:
+            application/json; charset=utf-8:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+                $ref: '#/components/schemas/OptionSet'
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        "403":
+          $ref: '#/components/responses/403Forbidden'
+    put:
+      tags:
+        - '01 商圈雲Saas'
+        - OptionSet 選項集
+      description: 更新選項集. get option sets
+      summary: 更新選項集. get option sets
+      parameters:
+        - in: path
+          name: id
+          description: 選項集系統ID.
+          schema:
+            type: number
+          required: true
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/OptionSet'
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        "403":
+          $ref: '#/components/responses/403Forbidden'
+
+
+
 
   # Item API
-  /items/list:
+  /item/list:
     get:
       tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
         - Item 商品
-        - '*商圈雲Saas'
-        - '*商圈雲POS'
-      summary: 商品列表
+      summary: 商品列表. list items
       description: 商品列表. list items
       parameters:
         - in: query
@@ -466,42 +537,25 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Item'
-                  has_more:
+                  hasMore:
                     type: boolean
                 required:
                   - object
                   - data
-                  - has_more
+                  - hasMore
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
   /items/data/{id}:
     get:
       tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
         - Item 商品
-        - '*商圈雲Saas'
-        - '*商圈雲POS'
-      summary: 商品詳細資訊
-      description: 商品詳細資訊. get item
+      summary: 商品詳細資訊. get item data
+      description: 商品詳細資訊. get item data
       parameters:
         - in: path
           name: id
@@ -517,36 +571,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/Item'
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
   # Attributes API
   /attribute/list:
     get:
       tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
         - Attribute 商品屬性 
-        - '*商圈雲Saas'
-        - '*商圈雲POS'
-      description: 商品屬性. get item attributes
-      summary: 商品屬性
+      description: 列出商品屬性. list item attributes
+      summary: 列出商品屬性. list item attributes
       parameters:
         - in: query
           name: id
@@ -576,43 +613,84 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Attribute'
-                  has_more:
+                  hasMore:
                     type: boolean
                 required:
                   - object
                   - data
-                  - has_more
+                  - hasMore
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
+          $ref: '#/components/responses/403Forbidden'
+            
+  /attribute/data/{id}:
+    get:
+      tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
+        - Attribute 商品屬性 
+      description: 獲取商品屬性. get item attributes
+      summary: 獲取商品屬性. get item attributes
+      parameters:
+        - in: path
+          name: id
+          description: 商品屬性系統ID.
+          schema:
+            type: number
+          required: true
+      responses:
+        "200":
+          description: 200 response
           content:
-            application/json; charset=UTF-8:
+            application/json; charset=utf-8:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+                      $ref: '#/components/schemas/Attribute'
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        "403":
+          $ref: '#/components/responses/403Forbidden'
+    put:
+      tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
+        - Attribute 商品屬性 
+      description: 更新商品屬性. update item attributes
+      summary: 更新商品屬性. update item attributes
+      parameters:
+        - in: path
+          name: id
+          description: 商品屬性系統ID.
+          schema:
+            type: number
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Attribute'
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                      $ref: '#/components/schemas/Attribute'
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        "403":
+          $ref: '#/components/responses/403Forbidden'
 
   # Category API
   /category/list:
     get:
       tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
         - Category 商品分類
-        - '*商圈雲Saas'
-        - '*商圈雲POS'
-      summary: 商品分類
-      description: 商品分類. get item category 
+      summary: 列出商品分類. list item category 
+      description: 列出商品分類. list item category 
       parameters:
         - in: query
           name: id
@@ -647,43 +725,84 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Category'
-                  has_more:
+                  hasMore:
                     type: boolean
                 required:
                   - object
                   - data
-                  - has_more
+                  - hasMore
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
+          $ref: '#/components/responses/403Forbidden'
+
+  # ModifierSet API
+  /category/data/{id}:
+    get:
+      tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
+        - Category 商品分類
+      summary: 獲取商品分類. get item category 
+      description: 獲取商品分類. get item category 
+      parameters:
+        - in: path
+          name: id
+          description: 商品分類系統ID.
+          schema:
+            type: number
+      responses:
+        "200":
+          description: 200 response
           content:
-            application/json; charset=UTF-8:
+            application/json; charset=utf-8:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+                $ref: '#/components/schemas/Category'
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        "403":
+          $ref: '#/components/responses/403Forbidden'
+    put:
+      tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
+        - Category 商品分類
+      summary: 更新商品分類. update item category 
+      description: 更新商品分類. update item category 
+      parameters:
+        - in: path
+          name: id
+          description: 商品分類系統ID.
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+      responses:
+        "200":
+          description: 200 response
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Category'
+        "404":
+          $ref: '#/components/responses/404NotFound'
+        "403":
+          $ref: '#/components/responses/403Forbidden'
+
 
   # ModifierSet API
   /modifierset/list:
     get:
       tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
         - Modifier 商品配料集
-        - '*商圈雲Saas'
-        - '*商圈雲POS'
-      summary: 商品配料集
-      description: 商品配料集. get item modifier sets
+      summary: 商品配料集. list item modifier sets
+      description: 商品配料集. list item modifier sets
       parameters:
         - in: query
           name: id
@@ -718,42 +837,25 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ModifierSet'
-                  has_more:
+                  hasMore:
                     type: boolean
                 required:
                   - object
                   - data
-                  - has_more
+                  - hasMore
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
   # Image API
   /image/list:
     get:
       tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
         - Image 圖片庫
-        - '*商圈雲Saas'
-        - '*商圈雲POS'
-      summary: 列出圖片
+      summary: 列出圖片. get Images
       description: 列出圖片. get Images
       parameters:
         - in: query
@@ -784,38 +886,27 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Image'
-                  has_more:
+                  hasMore:
                     type: boolean
                 required:
                   - object
                   - data
-                  - has_more
+                  - hasMore
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
   # Store API
   /store/list:
     get:
-      description: 列出門市. get Stores
+      tags:
+        - '01 商圈雲Saas'
+        - '02 商圈雲POS'
+        - '04 商圈APP'
+        - Store 門市
+      summary: 列出門市. list Stores
+      description: 列出門市. list Stores
       parameters:
         - in: query
           name: id
@@ -845,35 +936,20 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Store'
-                  has_more:
+                  hasMore:
                     type: boolean
                 required:
                   - object
                   - data
-                  - has_more
+                  - hasMore
         "404":
-          description: 404 response
-          content:
-            text/html; charset=UTF-8:
-              schema:
-                type: string
+          $ref: '#/components/responses/404NotFound'
         "403":
-          description: 403 response
-          content:
-            application/json; charset=UTF-8:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: boolean
-                    default: false
-                  error:
-                    type: string
-                required:
-                  - status
-                  - error
+          $ref: '#/components/responses/403Forbidden'
 
 components:
+
+  # Reusable parameters
   parameters:
     offsetParam:
       name: offset
@@ -892,6 +968,35 @@ components:
       schema:
         type: number
         default: 30
+
+  # Reusable response
+  responses:
+    404NotFound:
+      description: 404 response
+      content:
+        text/html; charset=UTF-8:
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                default: false
+              error:
+                type: string
+                default: "Not Found"
+
+    403Forbidden:
+      description: 403 response
+      content:
+        application/json; charset=UTF-8:
+          schema:
+            type: object
+            properties:
+              status:
+                type: boolean
+                default: false
+              error:
+                type: string
 
   schemas:
     Image:
@@ -915,7 +1020,7 @@ components:
           type: number
           description: |
             圖片大小. Image size
-        created_at:
+        createdAt:
           type: number
           description: |
             圖片創建時間 timestamp. Image created timestamp
@@ -928,7 +1033,7 @@ components:
         name: logo
         url: https://example.com/logo.png
         size: 123
-        created_at: 1600000000
+        createdAt: 1600000000
 
     Store:
       type: object
@@ -943,7 +1048,7 @@ components:
           type: string
           description: |
             門市名稱. Location name
-        created_at:
+        createdAt:
           type: number
           description: |
             門市創建時間 timestamp. Location created timestamp
@@ -952,7 +1057,7 @@ components:
       example:
         id: 1
         name: home
-        created_at: 1600000000
+        createdAt: 1600000000
 
     Option:
       type: object
@@ -1061,7 +1166,7 @@ components:
           type: string
           description: |
             商品名稱. Item name
-        category_id:
+        categoryId:
           type: number
           description: |
             商品分類系統ID. Item Category ID
@@ -1077,12 +1182,12 @@ components:
             商品圖片. Item images
           items:
             $ref: '#/components/schemas/Image'
-        locations:
+        Locations:
           type: array
           description: |
             商品上架地點. Item on stock locations
           items:
-            $ref: '#/components/schemas/Location'
+            $ref: '#/components/schemas/Store'
         sku:
           type: string
           description: |
@@ -1101,18 +1206,18 @@ components:
           type: boolean
           description: |
             是否開啟追蹤. Is tracking enabled
-        low_stock_alert:
+        lowStockAlert:
           type: boolean
           description: |
             是否開啟低庫存警示. Is low stock alert enabled
-        low_stock_amount:
+        lowStockAmount:
           type: number
           description: |
             低庫存警示數量. Low stock alert threshold
         variations:
           type: array
           description: |
-            商品變異. Item variations
+            商品規格. Item variations
           items:
             $ref: '#/components/schemas/Variation'
         attributes:
@@ -1124,7 +1229,7 @@ components:
       required:
         - id
         - name
-        - category_id
+        - categoryId
 
     #Variation
     Variation:
@@ -1132,12 +1237,12 @@ components:
         - $ref: '#/components/schemas/Item'
         - type: object
           properties:
-            parent_id:
+            parentId:
               type: number
               description: |
                 父商品系統ID. Parent Item ID
           required:
-            - parent_id
+            - parentId
 
     #Attribute
     Attribute:
@@ -1276,18 +1381,18 @@ components:
             配料集可選配料. Modifiers in modifier set
           items:
             $ref: '#/components/schemas/Modifier'
-        locations:
+        Locations:
           type: array
           description: |
             配料集可選地點. Locations in modifier set
           items:
-            $ref: '#/components/schemas/Location'
+            $ref: '#/components/schemas/Store'
       example:
         id: 1
         name: Spicy
         multiple: false
         modifiers: [{"id": 1, "name": "Spicy", "image": "https://example.com/spicy.png", "price": 10, "status": true}]
-        locations: [{"id": 1, "name": "Macau"}]
+        Locations: [{"id": 1, "name": "Macau"}]
 
     # Category
     Category:
@@ -1343,6 +1448,22 @@ components:
             - en
             - zh-TW
             - zh-CN
+        industryId:
+          description: 商家所屬行業.
+          type: number
+        Industry:
+          $ref: '#/components/schemas/Industry'
+        businessSize:
+          type: string
+          enum:
+            - '1-10'
+            - '11-50'
+            - '51-100'
+            - '100+'
+        BusinessServe:
+          type: array
+          items: 
+            $ref: '#/components/schemas/BusinessServe'
         toc:
           description: 商家同意條款.
           type: bool
@@ -1358,6 +1479,49 @@ components:
         lastName: Doe
         locale: en
         toc: true
+        industryId: 1
+        Industry: {"id": 1, "name": "Food & Beverage"}
+        businessSize: "1-10"
+        BusinessServe: [{"id": 1, "name": "Lunch Box"}, {"id":2, "name": "Beverage"}]
+
+
+    # Industry
+    Industry:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            行業系統ID. Industry ID
+        name:
+          type: string
+          description: |
+            行業名稱. Industry name
+      required:
+        - id
+        - name
+      example:
+        id: 1
+        name: Food & Beverage
+
+    # BusinessServe 
+    BusinessServe:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            公司服務系統ID. BusinessServe ID
+        name:
+          type: string
+          description: |
+            公司服務或商品名稱. BusinessServe name
+      required:
+        - id
+        - name
+      example:
+        id: 1
+        name: Food & Beverage
 
     # Validation
     Validation:
@@ -1371,17 +1535,17 @@ components:
           type: string
           description: |
             4位數字驗證碼. Validation Code
-        personType:
+        targetType:
           type: string
           description: |
-            發送對象類型. Person type
+            發送對象類型. Target type
           enum:
             - customer
             - merchant
-        personId:
+        targetId:
           type: number
           description: |
-            發送對象ID. Person ID
+            發送對象ID. Target ID
         status:
           type: string
           enum: 
@@ -1402,18 +1566,155 @@ components:
       required:
         - id
         - code
-        - personType
-        - personId
+        - targetType 
+        - targetId
         - status
         - expiredAt
       example:
         id: 1
         code: 1234
-        personType: merchant
-        personId: 1
+        targetType: merchant
+        targetId: 1
         status: sent
         expiredAt: 1664605900
         createdAt: 1664605600
+
+    Customer:
+      type: object
+      properties:
+        id: 
+          type: number
+          description: |
+            顧客系統ID. Customer ID
+        name: 
+          type: string
+          description: |
+            顧客名稱. Customer name
+        email:
+          description: 顧客電郵地址.
+          type: string
+          format: email
+        phone:
+          description: 顧客電話.
+          type: string
+        password:
+          description: 顧客密碼.
+          type: string
+          format: password
+        companyName:
+          description: 顧客公司名稱.
+          type: string
+        birthday:
+          description: 顧客生日 timestamp
+          type: number
+        lastOrderAt:
+          description: 顧客最後訂單時間.
+          type: number
+        purchaseCount:
+          description: 顧客訂購次數.
+          type: number
+        purchaseAmount:
+          description: 顧客訂購總金額.
+          type: number
+
+    Supplier:
+      type: object
+      properties:
+        id: 
+          type: number
+          description: |
+            供應商系統ID. Supplier ID
+        name: 
+          type: string
+          description: |
+            供應商名稱. Supplier name
+        email:
+          description: 供應商電郵地址.
+          type: string
+          format: email
+        phone:
+          description: 供應商電話.
+          type: string
+        contactName:
+          description: 聯繫人名稱.
+          type: string
+        lastOrderAt:
+          description: 供應商最後訂單時間.
+          type: number
+        purchaseCount:
+          description: 供應商訂購次數.
+          type: number
+        purchaseAmount:
+          description: 供應商訂購總金額.
+          type: number
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            訂單系統ID. Order ID
+        type:
+          type: string
+          enum:
+            - sale
+            - saleReturn
+            - purchase
+            - purchaseReturn
+          description: |
+            訂單類型. Order type
+        targetType:
+          type: string
+          description: |
+            發送對象類型. Target type
+          enum:
+            - customer
+            - supplier
+          default: customer
+        targetId:
+          type: number
+          description: |
+            發送對象ID. Target ID
+          default: -1
+        Target:
+          oneOf:
+            - $ref: '#/components/schemas/Customer'
+            - $ref: '#/components/schemas/Supplier'
+        createdAt:
+          type: number
+          description: |
+            訂單創建時間. Order created timestamp
+        OrderItems:
+          type: array
+          description: |
+            訂單商品. Order items
+          items: 
+            $ref: '#/components/schemas/OrderItem'
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: number
+          description: |
+            訂單商品系統ID. Order Item ID
+        orderId:
+          type: number
+          description: |
+            訂單系統ID. Order ID
+        itemId:
+          type: number
+          description: |
+            商品系統ID. Item ID
+        variationId:
+          type: number
+          description: |
+            商品規格系統ID. Variation ID
+        quantity:
+          type: number
+          description: |
+
 
 
 
